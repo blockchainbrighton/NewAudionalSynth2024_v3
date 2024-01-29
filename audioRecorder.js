@@ -29,10 +29,19 @@ window.onload = function() {
         .catch(err => console.error('Error accessing media devices.', err));
 };
 
+
 function playMetronome() {
-    // Metronome sound (a simple beep for example) should be played here
-    // For simplicity, we're using console.log
-    console.log('Metronome Click');
+    let oscillator = audioContext.createOscillator();
+    let gainNode = audioContext.createGain();
+
+    oscillator.connect(gainNode);
+    gainNode.connect(audioContext.destination);
+
+    oscillator.frequency.value = 1000; // Frequency in Hertz (beep sound)
+    gainNode.gain.value = 0.1; // Volume of the beep
+
+    oscillator.start(audioContext.currentTime);
+    oscillator.stop(audioContext.currentTime + 0.1); // Beep duration of 0.1 seconds
 
     metronomeCount++;
     if (metronomeCount >= 4) {
@@ -40,6 +49,7 @@ function playMetronome() {
         startRecording();
     }
 }
+
 
 function prepareToRecord() {
     metronomeCount = 0;
