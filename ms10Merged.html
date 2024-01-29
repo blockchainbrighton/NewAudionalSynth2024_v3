@@ -49,6 +49,9 @@
                 <button onclick="saveSettings()">Save Settings</button>
                 <div class="grid-placeholder"></div> <!-- Placeholder for alignment -->
                 <button onclick="loadSettings()">Load Settings</button>
+                <button id="createMidiJsonFile">Download Json Recording</button>
+                <input type="file" id="loadMidiJsonFile" style="display: none;" />
+                <label for="loadMidiJsonFile" id="loadMidiJsonFileLabel">Load MIDI Recording</label>
             </div>
     </div>
     <script src="audioRecorder.js"></script>
@@ -62,6 +65,7 @@
     <script src="playNotes.js"></script>
     <script src="noteSelector.js"></script>
     <script src="synth.js"></script>
+    <script src="saveLoadMidiRecordingJsonFiles.js"></script>
 </body>
 
 </html>
