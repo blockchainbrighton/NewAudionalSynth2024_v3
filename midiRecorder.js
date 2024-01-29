@@ -1,7 +1,12 @@
+// midiRecorder.js
+
+console.log('midiRecorder.js loaded'); 
+
+
 let isRecordingMIDI = false;
 let midiRecording = [];
 let playbackInterval;
-let playbackStartTime;
+let playbackStartTime = 0;
 let nextEventIndex = 0;
 
 function startMIDIRecording() {
@@ -47,9 +52,11 @@ function playbackNextMIDIEvent() {
     }
 }
 
+// Modify recordMIDIEvent to push events into midiRecording
 function recordMIDIEvent(message) {
     if (isRecordingMIDI) {
-        const timestamp = performance.now() - playbackStartTime;
+        const currentTime = performance.now();
+        const timestamp = currentTime - playbackStartTime;
         midiRecording.push({ timestamp, message });
         console.log('Recorded MIDI Event:', message, 'at timestamp:', timestamp);
     }

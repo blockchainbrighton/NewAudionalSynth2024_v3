@@ -3,6 +3,8 @@
         const A4_FREQUENCY = 440;
         const arpNoteNames = [];
 
+    
+
         function onMIDISuccess(e) {
             let o = e.inputs.values();
             for (let e = o.next(); e && !e.done; e = o.next()) {
@@ -20,7 +22,7 @@
             if (typeof window.recordMIDIEvent === 'function') {
                 window.recordMIDIEvent(e.data);
             }
-            
+
             let o = 240 & e.data[0];
             let n = e.data[1];
             let t = e.data.length > 2 ? e.data[2] : 0;
@@ -68,3 +70,31 @@
 
         navigator.requestMIDIAccess ? navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure) : console.warn("WebMIDI is not supported in this browser.");
        
+        // Add playback functionality
+        function playBackMIDI() {
+            if (midiRecording.length > 0) {
+                playbackStartTime = performance.now();
+                nextEventIndex = 0;
+                playbackInterval = setInterval(playbackNextMIDIEvent, 0);
+                console.log('Playback started');
+            }
+        }
+
+        function playbackNextMIDIEvent() {
+            if (nextEventIndex < midiRecording.length) {
+                const now = performance.now() - playbackStartTime;
+                const nextEvent = midiRecording[nextEventIndex];
+                if (now >= nextEvent.timestamp) {
+                    onMIDIMessage({ data: nextEvent.message }); // Reuse onMIDIMessage for playback
+                    nextEventIndex++;
+                }
+            } else {
+                clearInterval(playbackInterval);
+                console.log('Playback stopped');
+            }
+        }
+
+        // Add event listeners for the buttons in your JavaScript code
+        document.getElementById('recordMIDIButton').addEventListener('click', startMIDIRecording);
+        document.getElementById('stopMIDIRecordButton').addEventListener('click', stopMIDIRecording);
+        document.getElementById('playMIDIRecordButton').addEventListener('click', playBackMIDI);
