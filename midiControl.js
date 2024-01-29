@@ -16,6 +16,11 @@
 
         function onMIDIMessage(e) {
             console.log("Received MIDI message:", e.data);
+
+            if (typeof window.recordMIDIEvent === 'function') {
+                window.recordMIDIEvent(e.data);
+            }
+            
             let o = 240 & e.data[0];
             let n = e.data[1];
             let t = e.data.length > 2 ? e.data[2] : 0;

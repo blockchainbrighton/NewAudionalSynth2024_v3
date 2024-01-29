@@ -44,9 +44,17 @@
                 <label>Volume: <input id="volume" max="100" min="0" type="range" value="100"></label>
             </div>
             <!-- Add these inside your HTML, preferably in the body section -->
+            <div>
             <button id="recordButton">Record</button>
             <button id="stopRecordButton">Stop Recording</button>
             <button id="playRecordButton">Play Recording</button>
+            </div>
+            <br>
+            <div>
+            <button id="recordMIDIButton">Record MIDI</button>
+            <button id="stopMIDIRecordButton">Stop MIDI Recording</button>
+            <button id="playMIDIRecordButton">Play MIDI Recording</button>
+            </div>
 
         </div>
         <div class="arpeggiator-controls">
@@ -96,6 +104,8 @@
             <button onclick="loadSettings()">Load Settings</button>
         </div>
     </div>
+        <script src="audioRecorder.js"></script>
+        <script src="midiRecorder.js"></script>
         <script src="controlChannels.js"></script>
         <script src="main.js"></script>
         <script src="arpeggiator.js"></script>
