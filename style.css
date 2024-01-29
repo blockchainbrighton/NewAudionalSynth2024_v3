@@ -1,0 +1,72 @@
+/* styles.css - Easy to Change Variables */
+
+:root {
+    --synth-container-width: 33%; /* Easily change the width here */
+    --main-bg-color: #2d2d2d;
+    --main-text-color: #efefef;
+    --btn-bg-color: #2d2d2d;
+    --btn-text-color: #0fafff;
+    --btn-hover-bg-color: #0fafff;
+    --btn-hover-text-color: #2d2d2d;
+    --input-margin-left: 10px;
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--main-bg-color);
+    color: var(--main-text-color);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    height: 100vh;
+    background-image: linear-gradient(to top, var(--main-bg-color), #434343);
+}
+
+.synth-container {
+    background-color: #4a4a4a;
+    padding: 20px;
+    border-radius: 10px;
+    box-shadow: 0 0 15px rgba(0, 150, 255, 0.5); /* Fixed the typo 'kicker0.5' to correct rgba value */
+    width: var(--synth-container-width);
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-around;
+    flex-wrap: wrap;
+}
+
+button {
+    background-color: var(--btn-bg-color);
+    color: var(--btn-text-color);
+    border: none;
+    padding: 5px 20px;
+    border-radius: 5px;
+    cursor: pointer;
+    outline: none;
+    transition: background-color .3s;
+}
+
+button:hover {
+    background-color: var(--btn-hover-bg-color);
+    color: var(--btn-hover-text-color);
+}
+
+label, .dropdown-container, .control-container, .arpeggiator-controls {
+    display: flex;
+    justify-content: space-between;
+    width: 100%;
+    margin: 5px 0;
+}
+
+label, .dropdown-container, .control-container {
+    align-items: center;
+}
+
+.arpeggiator-controls {
+    margin: 10px 0;
+}
+
+input[type=range], select, input[type=number], input[type=checkbox] {
+    margin-left: var(--input-margin-left);
+}
