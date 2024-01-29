@@ -3,8 +3,6 @@
 console.log('midiRecorder.js loaded'); 
 
 
-let isRecordingMIDI = false;
-let midiRecording = [];
 let playbackInterval;
 let playbackStartTime = 0;
 let nextEventIndex = 0;
