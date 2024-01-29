@@ -139,7 +139,6 @@ function playbackNextMIDIEvent() {
         }
     } else {
         clearInterval(playbackInterval);
-        console.log('Playback stopped');
     }
 }
 
