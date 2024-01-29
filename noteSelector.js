@@ -57,22 +57,32 @@
 
     document.addEventListener("DOMContentLoaded", populateNoteSelectorWithKeys);
 
-   document.addEventListener("keydown", function(e) {
-       const o = keyToMidiNote[e.code];
-       if (o) {
-           const n = 440 * Math.pow(2, (o - 69) / 12);
-           console.log(`[KEYDOWN] Key: ${e.code}, MIDI note: ${o}, Frequency: ${n}`);
-           playMS10TriangleBass(n);
-           arpNotes.push(n);
-           updateArpNotesDisplay();
-       }
-   });
+    document.addEventListener("keydown", function(e) {
+        const midiNote = keyToMidiNote[e.code];
+        if (midiNote) {
+            const frequency = 440 * Math.pow(2, (midiNote - 69) / 12);
+            console.log(`[KEYDOWN] Key: ${e.code}, MIDI note: ${midiNote}, Frequency: ${frequency}`);
+            playMS10TriangleBass(frequency);
+            arpNotes.push(frequency);
+            updateArpNotesDisplay();
+    
+            // Record the note event
+            if (typeof window.recordKeyboardNoteEvent === 'function') {
+                window.recordKeyboardNoteEvent(midiNote, 127, true); // Assuming velocity 127 for key press
+            }
+        }
+    });
+
    document.addEventListener("keyup", function(e) {
-       const o = keyToMidiNote[e.code];
-       if (o) {
-           console.log(`[KEYUP] Key: ${e.code}, MIDI note: ${o}`);
-           stopMS10TriangleBass();
-       }
-   });
+        const o = keyToMidiNote[e.code];
+        if (o) {
+            console.log(`[KEYUP] Key: ${e.code}, MIDI note: ${o}`);
+            if (typeof stopMS10TriangleBass === 'function') {
+                stopMS10TriangleBass(); // Check if the function exists before calling it
+            } else {
+                console.warn("stopMS10TriangleBass function is not defined.");
+            }
+        }
+    });
    document.getElementById("arpToggle").addEventListener("click", toggleArpeggiator);
    
