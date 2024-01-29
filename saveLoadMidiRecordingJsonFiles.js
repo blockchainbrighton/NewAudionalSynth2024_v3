@@ -10,7 +10,7 @@ function getSynthSettings() {
         resonance: document.getElementById('resonance').value,
         volume: getVolume() // Assuming this function returns the current volume
     };
-    console.log('Retrieved synth settings:', settings); // Log the retrieved settings
+    console.log('[getSynthSettings] playbackRecordingDEBUG - Retrieved synth settings:', settings); // Log the retrieved settings
     return settings;
 }
 
@@ -61,6 +61,8 @@ function loadMIDIRecording(event) {
 }
 
 function setSynthSettings(settings) {
+    console.log('[setSynthSettings] playbackRecordingDEBUG - Setting loaded synth settings:', settings); // Log the retrieved settings
+
     // Set synth settings from the provided object
     document.getElementById('waveform').value = settings.waveform;
     document.getElementById('note').value = settings.note;

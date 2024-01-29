@@ -25,6 +25,8 @@ function onMIDIFailure() {
 
 function onMIDIMessage(e) {
     console.log("Received MIDI message:", e.data);
+    console.log('playbackRecordingDEBUG: Received MIDI message:', e.data);
+
 
     let statusByte = e.data[0];
     let messageType = statusByte & 0xF0; // Get the message type
@@ -124,9 +126,9 @@ function playBackMIDI() {
         playbackStartTime = performance.now(); // Update playbackStartTime
         nextEventIndex = 0; // Reset the nextEventIndex
         playbackInterval = setInterval(playbackNextMIDIEvent, 0);
-        console.log('Playback started with ' + midiRecording.length + ' events.');
+        console.log('playbackRecordingDEBUG: Playback started with ' + midiRecording.length + ' events.');
     } else {
-        console.log('No MIDI events to play back.');
+        console.log('playbackRecordingDEBUG: No MIDI events to play back.');
     }
 }
 
@@ -135,12 +137,13 @@ function playbackNextMIDIEvent() {
         const now = performance.now() - playbackStartTime;
         const nextEvent = midiRecording[nextEventIndex];
         if (now >= nextEvent.timestamp) {
+            console.log('playbackRecordingDEBUG: Playing back MIDI event:', nextEvent.message);
             onMIDIMessage({ data: nextEvent.message }); // Reuse onMIDIMessage for playback
-            console.log('Playing back MIDI event:', nextEvent.message);
             nextEventIndex++;
         }
     } else {
         clearInterval(playbackInterval);
+        console.log('playbackRecordingDEBUG: Playback stopped');
     }
 }
 
