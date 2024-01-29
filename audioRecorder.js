@@ -1,4 +1,4 @@
-// recorder.js
+// audioRecorder.js
 
 let audioContext;
 let mediaRecorder;
