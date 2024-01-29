@@ -6,6 +6,9 @@ let midiRecording = [];
 let playbackStartTime = 0;
 let nextEventIndex = 0; // Initialize the nextEventIndex
 var playbackInterval; // Declare playbackInterval globally
+let recordingStartTime = 0; // Initialize recording start time
+let isRecordingStarted = false; // Flag to track if recording has started
+
 
 function onMIDISuccess(e) {
     let o = e.inputs.values();
@@ -25,14 +28,19 @@ function onMIDIMessage(e) {
     let messageType = statusByte & 0xF0; // Get the message type
     let channel = statusByte & 0x0F; // Get the MIDI channel
 
-    let messageTime = performance.now(); // Get current time for recording
-
     // Filter out messages from channels 2-8
     if (channel >= 1 && channel <= 7) {
         return; // Ignore messages from these channels
     }
 
-    if (isRecordingMIDI) {
+    if (isRecordingMIDI && messageType === 144 && !isRecordingStarted) {
+        // Start recording from the first note-on message
+        recordingStartTime = performance.now();
+        isRecordingStarted = true;
+    }
+
+    if (isRecordingMIDI && isRecordingStarted) {
+        let messageTime = performance.now() - recordingStartTime;
         midiRecording.push({ timestamp: messageTime, message: e.data });
     }
 
@@ -87,12 +95,25 @@ navigator.requestMIDIAccess ? navigator.requestMIDIAccess().then(onMIDISuccess, 
 function startMIDIRecording() {
     isRecordingMIDI = true;
     midiRecording = []; // Reset the recording
+    isRecordingStarted = false; // Reset recording started flag
     console.log('MIDI Recording started');
 }
 
 function stopMIDIRecording() {
     isRecordingMIDI = false;
     console.log('MIDI Recording stopped');
+    isRecordingStarted = false; // Reset recording started flag
+}
+
+// Function to record keyboard-triggered notes
+function recordKeyboardNoteEvent(noteNumber, velocity, isNoteOn) {
+    if (isRecordingMIDI) {
+        let messageTime = performance.now();
+        // Mimic MIDI message format: [status, noteNumber, velocity]
+        let status = isNoteOn ? 144 : 128; // 144 for note on, 128 for note off
+        let midiMessage = [status, noteNumber, velocity];
+        midiRecording.push({ timestamp: messageTime, message: midiMessage });
+    }
 }
 
 // Playback functionality
@@ -122,16 +143,6 @@ function playbackNextMIDIEvent() {
     }
 }
 
-// Function to record keyboard-triggered notes
-function recordKeyboardNoteEvent(noteNumber, velocity, isNoteOn) {
-    if (isRecordingMIDI) {
-        let messageTime = performance.now();
-        // Mimic MIDI message format: [status, noteNumber, velocity]
-        let status = isNoteOn ? 144 : 128; // 144 for note on, 128 for note off
-        let midiMessage = [status, noteNumber, velocity];
-        midiRecording.push({ timestamp: messageTime, message: midiMessage });
-    }
-}
 
 // Event listener setup with error checking
 function addMIDIControlEventListeners() {
