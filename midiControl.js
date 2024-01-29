@@ -1,3 +1,5 @@
+// midiControl.js
+
 const A4_MIDI_NUMBER = 69;
 const A4_FREQUENCY = 440;
 const arpNoteNames = [];
