@@ -16,12 +16,14 @@ function getSynthSettings() {
 }
 
 function saveMIDIRecording() {
+    console.log(`Saving MIDI Recording:`, midiRecording);
     const settings = getSynthSettings();
     const data = {
         midiRecording: midiRecording,
         settings: settings
     };
     console.log('Data to be saved:', data); // Log the data to be saved
+    console.log(`Saved MIDI Recording:`, midiRecording);
 
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
     const downloadAnchorNode = document.createElement('a');

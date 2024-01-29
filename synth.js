@@ -3,6 +3,7 @@ let context = new (window.AudioContext || window.webkitAudioContext)();
 let currentOscillator = null;
 
 function playMS10TriangleBass(frequency = null) {
+       console.log(`playMS10TriangleBass called with Frequency: ${frequency},`);
     if (currentOscillator) {
         currentOscillator.stop();
         currentOscillator = null;
