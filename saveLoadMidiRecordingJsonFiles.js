@@ -1,5 +1,65 @@
 // saveLoadMidiRecordingJsonFiles.js
 
+// Helper function to abbreviate properties of MIDI recording and settings
+function abbreviateData(data) {
+    // Abbreviate the MIDI recording array
+    if (data.midiRecording) {
+        data.mR = data.midiRecording.map(rec => ({
+            ts: parseFloat(rec.timestamp.toFixed(3)),
+            msg: rec.message
+        }));
+        delete data.midiRecording;
+    }
+
+    // Abbreviate settings
+    if (data.settings) {
+        data.st = abbreviateSettings(data.settings);
+        delete data.settings;
+    }
+
+    return data;
+}
+
+// Helper function to expand abbreviated properties
+function expandData(data) {
+    // Expand the MIDI recording array
+    if (data.mR) {
+        data.midiRecording = data.mR.map(rec => ({
+            timestamp: rec.ts,
+            message: rec.msg
+        }));
+        delete data.mR;
+    }
+
+    // Expand settings
+    if (data.st) {
+        data.settings = abbreviateSettings(data.st, false);
+        delete data.st;
+    }
+
+    return data;
+}
+
+// Helper function to map settings to abbreviated form and vice versa
+function abbreviateSettings(settings, isAbbreviating = true) {
+    const mapping = {
+        waveform: 'wf',
+        note: 'nt',
+        attack: 'atk',
+        release: 'rls',
+        cutoff: 'ctf',
+        resonance: 'rsn',
+        volume: 'vol'
+    };
+
+    const result = {};
+    for (const key in settings) {
+        const newKey = isAbbreviating ? mapping[key] : Object.keys(mapping).find(k => mapping[k] === key);
+        result[newKey] = settings[key];
+    }
+    return result;
+}
+
 function getSynthSettings() {
     const settings = {
         waveform: document.getElementById('waveform').value,
@@ -15,15 +75,20 @@ function getSynthSettings() {
     return settings;
 }
 
+// Updated save function
 function saveMIDIRecording() {
     console.log(`Saving MIDI Recording:`, midiRecording);
+
     const settings = getSynthSettings();
-    const data = {
-        midiRecording: midiRecording,
+    let data = {
+        midiRecording: midiRecording,  // Saving the entire midiRecording array without filtering
         settings: settings
     };
+
+    // Abbreviate data
+    data = abbreviateData(data);
+
     console.log('Data to be saved:', data); // Log the data to be saved
-    console.log(`Saved MIDI Recording:`, midiRecording);
 
     const dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(data));
     const downloadAnchorNode = document.createElement('a');
@@ -36,6 +101,7 @@ function saveMIDIRecording() {
     console.log('MIDI Recording and settings saved'); // Log the save action
 }
 
+// Updated load function
 function loadMIDIRecording(event) {
     const file = event.target.files[0];
     if (file) {
@@ -45,7 +111,11 @@ function loadMIDIRecording(event) {
         reader.onload = function(event) {
             console.log('File read completed'); // Log file read completion
 
-            const data = JSON.parse(event.target.result);
+            let data = JSON.parse(event.target.result);
+
+            // Expand data
+            data = expandData(data);
+
             console.log('Parsed data from file:', data); // Log the parsed data
 
             midiRecording = data.midiRecording;
@@ -71,7 +141,6 @@ function setSynthSettings(settings) {
         const slider = document.getElementById(elementId);
         if (slider) {
             slider.value = value;
-            // Dispatch an 'input' event to trigger any attached listeners
             slider.dispatchEvent(new Event('input'));
         }
     }
@@ -87,7 +156,6 @@ function setSynthSettings(settings) {
 
     console.log('Synth settings set:', settings);
 }
-
 
 // Event listeners setup
 document.getElementById('createMidiJsonFile').addEventListener('click', saveMIDIRecording);
