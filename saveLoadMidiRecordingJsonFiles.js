@@ -8,7 +8,8 @@ function getSynthSettings() {
         release: document.getElementById('release').value,
         cutoff: document.getElementById('cutoff').value,
         resonance: document.getElementById('resonance').value,
-        volume: getVolume() // Assuming this function returns the current volume
+        volume: document.getElementById('volume').value 
+
     };
     console.log('[getSynthSettings] playbackRecordingDEBUG - Retrieved synth settings:', settings); // Log the retrieved settings
     return settings;
@@ -61,18 +62,30 @@ function loadMIDIRecording(event) {
 }
 
 function setSynthSettings(settings) {
-    console.log('[setSynthSettings] playbackRecordingDEBUG - Setting loaded synth settings:', settings); // Log the retrieved settings
+    console.log('[setSynthSettings] playbackRecordingDEBUG - Setting loaded synth settings:', settings);
+
+    // Helper function to update slider value and dispatch event
+    function updateSlider(elementId, value) {
+        const slider = document.getElementById(elementId);
+        if (slider) {
+            slider.value = value;
+            // Dispatch an 'input' event to trigger any attached listeners
+            slider.dispatchEvent(new Event('input'));
+        }
+    }
 
     // Set synth settings from the provided object
-    document.getElementById('waveform').value = settings.waveform;
-    document.getElementById('note').value = settings.note;
-    document.getElementById('attack').value = settings.attack;
-    document.getElementById('release').value = settings.release;
-    document.getElementById('cutoff').value = settings.cutoff;
-    document.getElementById('resonance').value = settings.resonance;
-    document.getElementById('volume').value = settings.volume;
-    console.log('Synth settings set:', settings); // Log the set settings
+    updateSlider('waveform', settings.waveform);
+    updateSlider('note', settings.note);
+    updateSlider('attack', settings.attack);
+    updateSlider('release', settings.release);
+    updateSlider('cutoff', settings.cutoff);
+    updateSlider('resonance', settings.resonance);
+    updateSlider('volume', settings.volume);
+
+    console.log('Synth settings set:', settings);
 }
+
 
 // Event listeners setup
 document.getElementById('createMidiJsonFile').addEventListener('click', saveMIDIRecording);
