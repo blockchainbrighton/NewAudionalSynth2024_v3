@@ -45,17 +45,18 @@ function loadMIDIRecording(fileContent) {
 function setSynthSettings(settings) {
     console.log('[setSynthSettings] - Received settings:', settings);
 
-    // Correctly parse and update the global synthSettings with the loaded settings
+    // Update the global synthSettings with the loaded settings
     synthSettings.waveform = settings.waveform;
     synthSettings.note = parseFloat(settings.note);
-    synthSettings.attack = parseFloat(settings.attack) / 1000; // Convert to seconds
-    synthSettings.release = parseFloat(settings.release) / 1000; // Convert to seconds
+    synthSettings.attack = parseFloat(settings.attack); // Assuming the value is already in seconds
+    synthSettings.release = parseFloat(settings.release); // Assuming the value is already in seconds
     synthSettings.cutoff = parseFloat(settings.cutoff);
     synthSettings.resonance = parseFloat(settings.resonance);
     synthSettings.volume = parseFloat(settings.volume) / 100; // Convert to the range of 0-1
 
     console.log('Synth settings updated:', synthSettings);
 }
+
 
 
 
