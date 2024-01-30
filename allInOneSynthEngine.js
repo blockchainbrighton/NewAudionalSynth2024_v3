@@ -15,83 +15,48 @@ let context = new (window.AudioContext || window.webkitAudioContext)();
 let nextEventIndex = 0;
 let playbackStartTime = 0;
 
-// Helper function to expand abbreviated properties
-function expandData(data) {
-    // Expand the MIDI recording array
-    if (data.mR) {
-        data.midiRecording = data.mR.map(rec => ({
-            timestamp: rec.ts,
-            message: rec.msg
-        }));
-        delete data.mR;
-    }
+function loadMIDIRecording(fileContent) {
+    let compressedData = JSON.parse(fileContent);
 
-    // Expand settings
-    if (data.st) {
-        data.settings = abbreviateSettings(data.st, false);
-        delete data.st;
-    }
+    // Decompress data
+    midiRecording = compressedData[0].map(rec => ({
+        timestamp: rec[0],
+        message: new Uint8Array([rec[1], rec[2], rec[3]])
+    }));
 
-    return data;
-}
-
-// Helper function to map settings to abbreviated form and vice versa
-function abbreviateSettings(settings, isAbbreviating = true) {
-    const mapping = {
-        waveform: 'wf',
-        note: 'nt',
-        attack: 'atk',
-        release: 'rls',
-        cutoff: 'ctf',
-        resonance: 'rsn',
-        volume: 'vol'
+    // Directly apply decompressed settings
+    let decompressedSettings = {
+        waveform: compressedData[1][0],
+        note: compressedData[1][1],
+        attack: compressedData[1][2],
+        release: compressedData[1][3],
+        cutoff: compressedData[1][4],
+        resonance: compressedData[1][5],
+        volume: compressedData[1][6]
     };
 
-    const result = {};
-    for (const key in settings) {
-        const newKey = isAbbreviating ? mapping[key] : Object.keys(mapping).find(k => mapping[k] === key);
-        result[newKey] = settings[key];
-    }
-    return result;
-}
-
-
-// Updated load function
-function loadMIDIRecording(fileContent) {
-    let data = JSON.parse(fileContent);
-
-    // Expand data
-    if (data.mR) {
-        midiRecording = data.mR.map(rec => ({
-            timestamp: rec.ts,
-            message: new Uint8Array(Object.values(rec.msg))
-        }));
-    }
-
-    // Apply the settings
-    if (data.st) {
-        setSynthSettings(data.st);
-    }
+    setSynthSettings(decompressedSettings);
 
     console.log('MIDI Recording loaded:', midiRecording);
     console.log('Synth settings applied:', synthSettings);
 }
 
-
+// Updated setSynthSettings function
 function setSynthSettings(settings) {
     console.log('[setSynthSettings] - Received settings:', settings);
 
-    // Update the global synthSettings with the loaded settings
-    if (settings.wf) synthSettings.waveform = settings.wf;
-    if (settings.nt) synthSettings.note = parseFloat(settings.nt);
-    if (settings.atk) synthSettings.attack = parseFloat(settings.atk) / 1000; // Assuming the value is in milliseconds
-    if (settings.rls) synthSettings.release = parseFloat(settings.rls) / 1000; // Assuming the value is in milliseconds
-    if (settings.ctf) synthSettings.cutoff = parseFloat(settings.ctf);
-    if (settings.rsn) synthSettings.resonance = parseFloat(settings.rsn);
-    if (settings.vol) synthSettings.volume = parseFloat(settings.vol) / 100; // Assuming the value is in a range of 0-100
+    // Correctly parse and update the global synthSettings with the loaded settings
+    synthSettings.waveform = settings.waveform;
+    synthSettings.note = parseFloat(settings.note);
+    synthSettings.attack = parseFloat(settings.attack) / 1000; // Convert to seconds
+    synthSettings.release = parseFloat(settings.release) / 1000; // Convert to seconds
+    synthSettings.cutoff = parseFloat(settings.cutoff);
+    synthSettings.resonance = parseFloat(settings.resonance);
+    synthSettings.volume = parseFloat(settings.volume) / 100; // Convert to the range of 0-1
 
     console.log('Synth settings updated:', synthSettings);
 }
+
 
 
 function onMIDISuccess(e) {
