@@ -40,7 +40,7 @@ function loadMIDIRecording(fileContent) {
     console.log('playbackRecordingDEBUG: Decompressed settings:', decompressedSettings);
 
     setSynthSettings(decompressedSettings);
-    console.log('playbackRecordingDEBUG: Synth settings applied:', synthSettings);
+    console.log(`playbackRecordingDEBUG: Applied synth settings - waveform: ${synthSettings.waveform}, attack: ${synthSettings.attack}, release: ${synthSettings.release}, cutoff: ${synthSettings.cutoff}, resonance: ${synthSettings.resonance}, volume: ${synthSettings.volume}`);
 }
 
 // Updated setSynthSettings function
@@ -77,6 +77,7 @@ function onMIDIMessage(e) {
     let data = e.data;
     console.log("Received MIDI message:", e.data);
     console.log('playbackRecordingDEBUG: Received MIDI message:', e.data);
+   
 
     // Check if data is in object format and convert to array if necessary
     if (!Array.isArray(data)) {
@@ -106,6 +107,8 @@ function onMIDIMessage(e) {
 
     let noteNumber = e.data[1];
     let velocity = e.data.length > 2 ? e.data[2] : 0;
+    console.log(`playbackRecordingDEBUG: Processing MIDI message with note number: ${noteNumber}, velocity: ${velocity}`);
+    console.log(`playbackRecordingDEBUG: Current synth settings - waveform: ${synthSettings.waveform}, attack: ${synthSettings.attack}, release: ${synthSettings.release}, cutoff: ${synthSettings.cutoff}, resonance: ${synthSettings.resonance}, volume: ${synthSettings.volume}`);
 
     console.log(`Status Byte: ${statusByte}, Message Type: ${messageType}, Channel: ${channel}`);
     console.log(`Note Number: ${noteNumber}, Velocity: ${velocity}`);
@@ -157,6 +160,7 @@ navigator.requestMIDIAccess ? navigator.requestMIDIAccess().then(onMIDISuccess, 
 
 // Function to start playback of MIDI recording
 function playBackMIDI() {
+    console.log(`playbackRecordingDEBUG: Starting playback with ${midiRecording.length} events.`);
     if (midiRecording.length > 0) {
         playbackStartTime = performance.now(); // Update playbackStartTime
         nextEventIndex = 0; // Reset the nextEventIndex
@@ -220,7 +224,7 @@ let synthSettings = {
 
 // Updated playMS10TriangleBass function
 function playMS10TriangleBass(frequency = synthSettings.note) {
-    console.log(`playMS10TriangleBass - Frequency: ${frequency}, Volume: ${synthSettings.volume}`);
+    console.log(`[playMS10TriangleBass] playbackRecordingDEBUG: Generating sound with frequency: ${frequency}, waveform: ${synthSettings.waveform}, attack: ${synthSettings.attack}, release: ${synthSettings.release}, volume: ${synthSettings.volume}`);
     console.log(`Synth Settings - Waveform: ${synthSettings.waveform}, Attack: ${synthSettings.attack}, Release: ${synthSettings.release}, Cutoff: ${synthSettings.cutoff}, Resonance: ${synthSettings.resonance}`);
 
     if (currentOscillator) {
