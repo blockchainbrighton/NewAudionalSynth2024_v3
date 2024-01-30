@@ -1,3 +1,5 @@
+// midiControl.js
+
 const A4_MIDI_NUMBER = 69;
 const A4_FREQUENCY = 440;
 const arpNoteNames = [];
@@ -22,12 +24,20 @@ function onMIDIFailure() {
 }
 
 function onMIDIMessage(e) {
+    let data = e.data;
     console.log("Received MIDI message:", e.data);
+    console.log('playbackRecordingDEBUG: Received MIDI message:', e.data);
+
+    // Check if data is in object format and convert to array if necessary
+    if (!Array.isArray(data)) {
+        data = [data[0], data[1], data[2]];
+    }
 
     let statusByte = e.data[0];
     let messageType = statusByte & 0xF0; // Get the message type
     let channel = statusByte & 0x0F; // Get the MIDI channel
 
+  
     // Filter out messages from channels 2-8
     if (channel >= 1 && channel <= 7) {
         return; // Ignore messages from these channels
@@ -46,6 +56,9 @@ function onMIDIMessage(e) {
 
     let noteNumber = e.data[1];
     let velocity = e.data.length > 2 ? e.data[2] : 0;
+
+    console.log(`Status Byte: ${statusByte}, Message Type: ${messageType}, Channel: ${channel}`);
+    console.log(`Note Number: ${noteNumber}, Velocity: ${velocity}`);
 
     // Process Note On/Off messages
     switch (messageType) {
@@ -122,9 +135,9 @@ function playBackMIDI() {
         playbackStartTime = performance.now(); // Update playbackStartTime
         nextEventIndex = 0; // Reset the nextEventIndex
         playbackInterval = setInterval(playbackNextMIDIEvent, 0);
-        console.log('Playback started with ' + midiRecording.length + ' events.');
+        console.log('playbackRecordingDEBUG: Playback started with ' + midiRecording.length + ' events.');
     } else {
-        console.log('No MIDI events to play back.');
+        console.log('playbackRecordingDEBUG: No MIDI events to play back.');
     }
 }
 
@@ -132,14 +145,15 @@ function playbackNextMIDIEvent() {
     if (nextEventIndex < midiRecording.length) {
         const now = performance.now() - playbackStartTime;
         const nextEvent = midiRecording[nextEventIndex];
-        if (now >= nextEvent.timestamp) {
-            onMIDIMessage({ data: nextEvent.message }); // Reuse onMIDIMessage for playback
-            console.log('Playing back MIDI event:', nextEvent.message);
-            nextEventIndex++;
-        }
+    if (now >= nextEvent.timestamp) {
+        let midiMessage = new Uint8Array(Object.values(nextEvent.message));
+        console.log('Converted MIDI message:', midiMessage);
+        onMIDIMessage({ data: midiMessage }); // Adjusted to pass Uint8Array
+        nextEventIndex++;
+    }
     } else {
         clearInterval(playbackInterval);
-        console.log('Playback stopped');
+        console.log('playbackRecordingDEBUG: Playback stopped');
     }
 }
 
