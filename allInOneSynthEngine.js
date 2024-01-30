@@ -16,13 +16,16 @@ let nextEventIndex = 0;
 let playbackStartTime = 0;
 
 function loadMIDIRecording(fileContent) {
+    console.log('playbackRecordingDEBUG: Starting to load MIDI recording');
     let compressedData = JSON.parse(fileContent);
+    console.log('playbackRecordingDEBUG: Compressed data parsed:', compressedData);
 
     // Decompress data
     midiRecording = compressedData[0].map(rec => ({
         timestamp: rec[0],
         message: new Uint8Array([rec[1], rec[2], rec[3]])
     }));
+    console.log('playbackRecordingDEBUG: MIDI recording decompressed:', midiRecording);
 
     // Directly apply decompressed settings
     let decompressedSettings = {
@@ -34,27 +37,26 @@ function loadMIDIRecording(fileContent) {
         resonance: compressedData[1][5],
         volume: compressedData[1][6]
     };
+    console.log('playbackRecordingDEBUG: Decompressed settings:', decompressedSettings);
 
     setSynthSettings(decompressedSettings);
-
-    console.log('MIDI Recording loaded:', midiRecording);
-    console.log('Synth settings applied:', synthSettings);
+    console.log('playbackRecordingDEBUG: Synth settings applied:', synthSettings);
 }
 
 // Updated setSynthSettings function
 function setSynthSettings(settings) {
-    console.log('[setSynthSettings] - Received settings:', settings);
+    console.log('playbackRecordingDEBUG: [setSynthSettings] - Received settings:', settings);
 
     // Update the global synthSettings with the loaded settings
     synthSettings.waveform = settings.waveform;
     synthSettings.note = parseFloat(settings.note);
-    synthSettings.attack = parseFloat(settings.attack); // Assuming the value is already in seconds
-    synthSettings.release = parseFloat(settings.release); // Assuming the value is already in seconds
+    synthSettings.attack = parseFloat(settings.attack) / 1000; // Assuming the value is already in seconds
+    synthSettings.release = parseFloat(settings.release) / 1000; // Assuming the value is already in seconds
     synthSettings.cutoff = parseFloat(settings.cutoff);
     synthSettings.resonance = parseFloat(settings.resonance);
     synthSettings.volume = parseFloat(settings.volume) / 100; // Convert to the range of 0-1
 
-    console.log('Synth settings updated:', synthSettings);
+    console.log('playbackRecordingDEBUG: Synth settings updated:', synthSettings);
 }
 
 
