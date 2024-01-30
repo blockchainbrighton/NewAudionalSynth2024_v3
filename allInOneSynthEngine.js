@@ -58,36 +58,37 @@ function abbreviateSettings(settings, isAbbreviating = true) {
 
 // Updated load function
 function loadMIDIRecording(fileContent) {
-    console.log('File read completed'); // Log file read completion
-
     let data = JSON.parse(fileContent);
 
     // Expand data
-    data = expandData(data);
-
-    console.log('Parsed data from file:', data); // Log the parsed data
-
-    midiRecording = data.midiRecording;
-    console.log('Loaded MIDI recording:', midiRecording); // Log the loaded MIDI recording
+    if (data.mR) {
+        midiRecording = data.mR.map(rec => ({
+            timestamp: rec.ts,
+            message: new Uint8Array(Object.values(rec.msg))
+        }));
+    }
 
     // Apply the settings
-    setSynthSettings(data.settings);
-    console.log('Synth settings applied:', data.settings); // Log the applied settings
+    if (data.st) {
+        setSynthSettings(data.st);
+    }
 
-    console.log('MIDI Recording and settings loaded');
+    console.log('MIDI Recording loaded:', midiRecording);
+    console.log('Synth settings applied:', synthSettings);
 }
+
 
 function setSynthSettings(settings) {
     console.log('[setSynthSettings] - Received settings:', settings);
 
     // Update the global synthSettings with the loaded settings
-    if (settings.waveform) synthSettings.waveform = settings.waveform;
-    if (settings.note) synthSettings.note = parseFloat(settings.note);
-    if (settings.attack) synthSettings.attack = parseFloat(settings.attack) / 1000; // Assuming the value is in milliseconds
-    if (settings.release) synthSettings.release = parseFloat(settings.release) / 1000; // Assuming the value is in milliseconds
-    if (settings.cutoff) synthSettings.cutoff = parseFloat(settings.cutoff);
-    if (settings.resonance) synthSettings.resonance = parseFloat(settings.resonance);
-    if (settings.volume) synthSettings.volume = parseFloat(settings.volume) / 100; // Assuming the value is in a range of 0-100
+    if (settings.wf) synthSettings.waveform = settings.wf;
+    if (settings.nt) synthSettings.note = parseFloat(settings.nt);
+    if (settings.atk) synthSettings.attack = parseFloat(settings.atk) / 1000; // Assuming the value is in milliseconds
+    if (settings.rls) synthSettings.release = parseFloat(settings.rls) / 1000; // Assuming the value is in milliseconds
+    if (settings.ctf) synthSettings.cutoff = parseFloat(settings.ctf);
+    if (settings.rsn) synthSettings.resonance = parseFloat(settings.rsn);
+    if (settings.vol) synthSettings.volume = parseFloat(settings.vol) / 100; // Assuming the value is in a range of 0-100
 
     console.log('Synth settings updated:', synthSettings);
 }
