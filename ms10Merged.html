@@ -29,8 +29,16 @@
                 Note:
                 <select id="note"></select>
             </label>
+            <label>
+                BPM:
+                <input type="number" id="bpm" value="120" min="1" style="width: 3em;">
+            </label>
             <button onclick="playMS10TriangleBass()">Play Note</button>
+            <button onclick="toggleMetronome()">Metronome Click</button>
+            <button id="toggleQuantize" onclick="toggleQuantize()">Quantize On/Off</button>
         </div>
+
+    
         <div class="control-container">
             <div class="fader-controls">
                 <label>Attack (ms): <input id="attack" max="2000" min="0" type="range" value="10"></label>
@@ -61,6 +69,7 @@
         <script src="playNotes.js"></script>
         <script src="noteSelector.js"></script>
         <script src="synth.js"></script>
+        <script src="metronome.js"></script>
         <script src="saveLoadMidiRecordingJsonFiles.js"></script>
        
 </body>
