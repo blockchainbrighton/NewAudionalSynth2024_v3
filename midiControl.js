@@ -26,39 +26,33 @@ function onMIDIFailure() {
 function onMIDIMessage(e) {
     let data = e.data;
     console.log("Received MIDI message:", e.data);
-    console.log('playbackRecordingDEBUG: Received MIDI message:', e.data);
 
-    // Check if data is in object format and convert to array if necessary
-    if (!Array.isArray(data)) {
-        data = [data[0], data[1], data[2]];
+    // Ensure data is in the expected format for processing
+    if (typeof data === 'object' && !Array.isArray(data)) {
+        data = Array.from(data); // Convert data to a regular array format
     }
 
-    let statusByte = e.data[0];
+    let statusByte = data[0];
     let messageType = statusByte & 0xF0; // Get the message type
     let channel = statusByte & 0x0F; // Get the MIDI channel
+    let noteNumber = data[1];
+    let velocity = data[2]; // Correctly access the velocity
 
-  
-    // Filter out messages from channels 2-8
-    if (channel >= 1 && channel <= 7) {
-        return; // Ignore messages from these channels
-    }
-
-    if (isRecordingMIDI && messageType === 144 && !isRecordingStarted) {
-        // Start recording from the first note-on message
+    // Start recording on the first Note On message with velocity > 0
+    if (!isRecordingStarted && messageType === 144 && velocity > 0) {
+        isRecordingStarted = true; // Flag indicating recording has started
         recordingStartTime = performance.now();
-        isRecordingStarted = true;
+        console.log('MIDI Recording started with first note');
     }
 
     if (isRecordingMIDI && isRecordingStarted) {
         let messageTime = performance.now() - recordingStartTime;
-        midiRecording.push({ timestamp: messageTime, message: e.data });
+        midiRecording.push({ timestamp: messageTime, message: data });
     }
-
-    let noteNumber = e.data[1];
-    let velocity = e.data.length > 2 ? e.data[2] : 0;
 
     console.log(`Status Byte: ${statusByte}, Message Type: ${messageType}, Channel: ${channel}`);
     console.log(`Note Number: ${noteNumber}, Velocity: ${velocity}`);
+    
 
     // Process Note On/Off messages
     switch (messageType) {
@@ -104,18 +98,16 @@ function getVolume() {
 
 navigator.requestMIDIAccess ? navigator.requestMIDIAccess().then(onMIDISuccess, onMIDIFailure) : console.warn("WebMIDI is not supported in this browser.");
 
-// Recording control functions
 function startMIDIRecording() {
     isRecordingMIDI = true;
-    midiRecording = []; // Reset the recording
-    isRecordingStarted = false; // Reset recording started flag
+    midiRecording = []; // Ensure this is only here or checked to not clear unintentionally
+    recordingStartTime = performance.now(); // Capture start time
     console.log('MIDI Recording started');
 }
 
 function stopMIDIRecording() {
     isRecordingMIDI = false;
-    console.log('MIDI Recording stopped');
-    isRecordingStarted = false; // Reset recording started flag
+    console.log('MIDI Recording stopped. Recorded data:', midiRecording);
 }
 
 // Function to record keyboard-triggered notes
@@ -131,29 +123,41 @@ function recordKeyboardNoteEvent(noteNumber, velocity, isNoteOn) {
 
 // Playback functionality
 function playBackMIDI() {
+    const playButton = document.getElementById('playMIDIRecordButton');
     if (midiRecording.length > 0) {
-        playbackStartTime = performance.now(); // Update playbackStartTime
-        nextEventIndex = 0; // Reset the nextEventIndex
+        // Start playback
+        playbackStartTime = performance.now();
+        nextEventIndex = 0;
         playbackInterval = setInterval(playbackNextMIDIEvent, 0);
-        console.log('playbackRecordingDEBUG: Playback started with ' + midiRecording.length + ' events.');
+        playButton.classList.add('active');
+        // Update button text to "Stop"
+        playButton.textContent = "Stop";
+        console.log('Playback started');
     } else {
-        console.log('playbackRecordingDEBUG: No MIDI events to play back.');
+        // If there's nothing to play, reset button text (useful for repeated clicks)
+        playButton.textContent = "Play MIDI Recording";
     }
 }
 
 function playbackNextMIDIEvent() {
+    const playButton = document.getElementById('playMIDIRecordButton');
     if (nextEventIndex < midiRecording.length) {
         const now = performance.now() - playbackStartTime;
         const nextEvent = midiRecording[nextEventIndex];
-    if (now >= nextEvent.timestamp) {
-        let midiMessage = new Uint8Array(Object.values(nextEvent.message));
-        console.log('Converted MIDI message:', midiMessage);
-        onMIDIMessage({ data: midiMessage }); // Adjusted to pass Uint8Array
-        nextEventIndex++;
-    }
+        if (now >= nextEvent.timestamp) {
+            // Construct a MIDI event object to match the expected format of onMIDIMessage
+            const midiEvent = {data: nextEvent.message};
+            onMIDIMessage(midiEvent); // Call onMIDIMessage with the constructed event
+            console.log('Playing MIDI Event:', nextEvent.message);
+            nextEventIndex++;
+        }
     } else {
+        // Stop playback
         clearInterval(playbackInterval);
-        console.log('playbackRecordingDEBUG: Playback stopped');
+        playButton.classList.remove('active');
+        // Reset button text to "Play MIDI Recording"
+        playButton.textContent = "Play MIDI Recording";
+        console.log('Playback stopped');
     }
 }
 

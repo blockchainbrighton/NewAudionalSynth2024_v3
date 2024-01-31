@@ -40,28 +40,24 @@
                 <label>Volume: <input id="volume" max="100" min="0" type="range" value="100"></label>
             </div>
             <div class="button-grid">
-                <button id="recordButton">Record Audio</button>
-                <button id="stopRecordButton">Stop Audio Recording</button>
-                <button id="playRecordButton">Play Audio Recording</button>
+            
                 <button id="recordMIDIButton">Record MIDI</button>
                 <button id="stopMIDIRecordButton">Stop MIDI Recording</button>
                 <button id="playMIDIRecordButton">Play MIDI Recording</button>
-                <button onclick="saveSettings()">Save Settings</button>
-                <div class="grid-placeholder"></div> <!-- Placeholder for alignment -->
-                <button onclick="loadSettings()">Load Settings</button>
+          
                 <button id="createMidiJsonFile">Download Json Recording</button>
                 <input type="file" id="loadMidiJsonFile" style="display: none;" />
-                <label for="loadMidiJsonFile" id="loadMidiJsonFileLabel">Load MIDI Recording</label>
+                <button id="loadMidiButton" onclick="document.getElementById('loadMidiJsonFile').click()">Load MIDI Recording</button>
             </div>
     </div>
-        <script src="audioRecorder.js"></script>
+        <!--<script src="audioRecorder.js"></script>-->
         <script src="controlChannels.js"></script>
         <script src="main.js"></script>
         <script src="arpeggiator.js"></script>
         <script src="eventListeners.js"></script>
         <script src="midiControl.js"></script>
         <script src="timing.js"></script>
-        <script src="saveLoad.js"></script>
+        <!--<script src="saveLoad.js"></script>-->
         <script src="playNotes.js"></script>
         <script src="noteSelector.js"></script>
         <script src="synth.js"></script>
