@@ -1,26 +1,7 @@
 // saveLoadMidiRecordingJsonFiles.js
 
-// Helper function to abbreviate properties of MIDI recording and settings
-function abbreviateData(data) {
-    // Abbreviate the MIDI recording array
-    if (data.midiRecording) {
-        data.mR = data.midiRecording.map(rec => ({
-            ts: parseFloat(rec.timestamp.toFixed(3)),
-            msg: rec.message
-        }));
-        delete data.midiRecording;
-    }
+// Abbreviate or Expand MIDI recording and settings based on the operation
 
-    // Abbreviate settings
-    if (data.settings) {
-        data.st = abbreviateSettings(data.settings);
-        delete data.settings;
-    }
-
-    return data;
-}
-
-// Helper function to expand abbreviated properties
 function expandData(data) {
     // Expand the MIDI recording array
     if (data.mR) {
@@ -31,18 +12,40 @@ function expandData(data) {
         delete data.mR;
     }
 
-    // Expand settings
+    // Correctly expand settings - Fix applied here
     if (data.st) {
-        data.settings = abbreviateSettings(data.st, false);
+        data.settings = expandSettings(data.st); // Use a corrected function for expanding settings
         delete data.st;
     }
 
     return data;
 }
 
-// Helper function to map settings to abbreviated form and vice versa
-function abbreviateSettings(settings, isAbbreviating = true) {
-    const mapping = {
+// New function to correctly expand abbreviated settings back to their full names
+function expandSettings(abbreviatedSettings) {
+    const fullNames = {
+        wf: 'waveform',
+        nt: 'note',
+        atk: 'attack',
+        rls: 'release',
+        ctf: 'cutoff',
+        rsn: 'resonance',
+        vol: 'volume'
+    };
+
+    return Object.keys(abbreviatedSettings).reduce((acc, abbrevKey) => {
+        const fullKey = fullNames[abbrevKey] || abbrevKey; // Fallback to original key if no match found
+        acc[fullKey] = abbreviatedSettings[abbrevKey];
+        return acc;
+    }, {});
+}
+
+function processMidiData(data, operation = 'abbreviate') {
+    const abbreviations = {
+        midiRecording: 'mR',
+        timestamp: 'ts',
+        message: 'msg',
+        settings: 'st',
         waveform: 'wf',
         note: 'nt',
         attack: 'atk',
@@ -52,26 +55,45 @@ function abbreviateSettings(settings, isAbbreviating = true) {
         volume: 'vol'
     };
 
-    const result = {};
-    for (const key in settings) {
-        const newKey = isAbbreviating ? mapping[key] : Object.keys(mapping).find(k => mapping[k] === key);
-        result[newKey] = settings[key];
+    const processData = (obj, isAbbreviating) => {
+        return Object.keys(obj).reduce((acc, key) => {
+            const newKey = isAbbreviating ? abbreviations[key] || key : Object.keys(abbreviations).find(k => abbreviations[k] === key) || key;
+            acc[newKey] = obj[key];
+            return acc;
+        }, {});
+    };
+
+    if (operation === 'abbreviate') {
+        if (data.midiRecording) {
+            data.mR = data.midiRecording.map(rec => processData(rec, true));
+            delete data.midiRecording;
+        }
+        if (data.settings) {
+            data.st = processData(data.settings, true);
+            delete data.settings;
+        }
+    } else { // Expand
+        if (data.mR) {
+            data.midiRecording = data.mR.map(rec => processData(rec, false));
+            delete data.mR;
+        }
+        if (data.st) {
+            data.settings = processData(data.st, false);
+            delete data.st;
+        }
     }
-    return result;
+
+    return data;
 }
 
 function getSynthSettings() {
-    const settings = {
-        waveform: document.getElementById('waveform').value,
-        note: document.getElementById('note').value,
-        attack: document.getElementById('attack').value,
-        release: document.getElementById('release').value,
-        cutoff: document.getElementById('cutoff').value,
-        resonance: document.getElementById('resonance').value,
-        volume: document.getElementById('volume').value 
+    const settingsKeys = ['waveform', 'note', 'attack', 'release', 'cutoff', 'resonance', 'volume'];
+    const settings = settingsKeys.reduce((acc, key) => {
+        acc[key] = document.getElementById(key).value;
+        return acc;
+    }, {});
 
-    };
-    console.log('[getSynthSettings] playbackRecordingDEBUG - Retrieved synth settings:', settings); // Log the retrieved settings
+    console.log('[getSynthSettings] playbackRecordingDEBUG - Retrieved synth settings:', settings);
     return settings;
 }
 
@@ -86,7 +108,7 @@ function saveMIDIRecording() {
     };
 
     // Abbreviate data
-    data = abbreviateData(data);
+    data = processMidiData(data);
 
     console.log('Data to be saved:', data); // Log the data to be saved
 
@@ -135,25 +157,13 @@ function loadMIDIRecording(event) {
 
 function setSynthSettings(settings) {
     console.log('[setSynthSettings] playbackRecordingDEBUG - Setting loaded synth settings:', settings);
-
-    // Helper function to update slider value and dispatch event
-    function updateSlider(elementId, value) {
-        const slider = document.getElementById(elementId);
+    Object.keys(settings).forEach(key => {
+        const slider = document.getElementById(key);
         if (slider) {
-            slider.value = value;
+            slider.value = settings[key];
             slider.dispatchEvent(new Event('input'));
         }
-    }
-
-    // Set synth settings from the provided object
-    updateSlider('waveform', settings.waveform);
-    updateSlider('note', settings.note);
-    updateSlider('attack', settings.attack);
-    updateSlider('release', settings.release);
-    updateSlider('cutoff', settings.cutoff);
-    updateSlider('resonance', settings.resonance);
-    updateSlider('volume', settings.volume);
-
+    });
     console.log('Synth settings set:', settings);
 }
 
