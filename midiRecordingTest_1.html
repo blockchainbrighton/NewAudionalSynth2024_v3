@@ -1,0 +1,92 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Synth Engine Player</title>
+    <script src="audionalSynthEngine.js"></script>
+</head>
+
+<body>
+    <button id="playButton">Play</button>
+
+    <script>
+        // Embed the settings directly in the HTML file
+        const settings = {
+            "mR": [
+                {"ts": 345.6000000089407, "msg": [144, 33, 76]},
+                {"ts": 346.29999999701977, "msg": [144, 33, 76]},
+                {"ts": 478.40000000596046, "msg": [144, 33, 0]},
+                {"ts": 478.79999999701977, "msg": [144, 33, 0]},
+                {"ts": 698.2000000029802, "msg": [176, 72, 6]},
+                {"ts": 698.5, "msg": [176, 72, 6]},
+                {"ts": 702.2000000029802, "msg": [176, 72, 5]},
+                {"ts": 702.2000000029802, "msg": [176, 72, 5]},
+                {"ts": 707.4000000059605, "msg": [176, 72, 3]},
+                {"ts": 707.5, "msg": [176, 72, 3]},
+                {"ts": 712, "msg": [176, 72, 0]},
+                {"ts": 712.1000000089407, "msg": [176, 72, 0]},
+                {"ts": 716.7000000029802, "msg": [144, 33, 86]},
+                {"ts": 717, "msg": [144, 33, 86]},
+                {"ts": 833.7999999970198, "msg": [144, 33, 0]},
+                {"ts": 834.1000000089407, "msg": [144, 33, 0]},
+                {"ts": 940.7999999970198, "msg": [178, 73, 26]},
+                {"ts": 940.9000000059605, "msg": [178, 73, 26]},
+                {"ts": 984.1000000089407, "msg": [178, 73, 23]},
+                {"ts": 984.2000000029802, "msg": [178, 73, 23]},
+                {"ts": 1098.6000000089407, "msg": [144, 33, 88]},
+                {"ts": 1098.9000000059605, "msg": [144, 33, 88]},
+                {"ts": 1221.7999999970198, "msg": [144, 33, 0]},
+                {"ts": 1221.9000000059605, "msg": [144, 33, 0]},
+                {"ts": 1489.2999999970198, "msg": [144, 34, 109]},
+                {"ts": 1489.7999999970198, "msg": [144, 34, 109]},
+                {"ts": 1611.7000000029802, "msg": [144, 34, 0]},
+                {"ts": 1611.7999999970198, "msg": [144, 34, 0]},
+                {"ts": 1639.1000000089407, "msg": [178, 73, 25]},
+                {"ts": 1639.2999999970198, "msg": [178, 73, 25]},
+                {"ts": 1825.7000000029802, "msg": [178, 73, 23]},
+                {"ts": 1825.7999999970198, "msg": [178, 73, 23]},
+                {"ts": 1880, "msg": [144, 34, 117]},
+                {"ts": 1880.4000000059605, "msg": [144, 34, 117]},
+                {"ts": 1940.7999999970198, "msg": [178, 73, 25]},
+                {"ts": 1940.9000000059605, "msg": [178, 73, 25]},
+                {"ts": 1986.5, "msg": [144, 34, 0]},
+                {"ts": 1986.6000000089407, "msg": [144, 34, 0]},
+                {"ts": 2456.4000000059605, "msg": [178, 73, 23]},
+                {"ts": 2456.5, "msg": [178, 73, 23]},
+                {"ts": 2556.9000000059605, "msg": [178, 73, 25]},
+                {"ts": 2557, "msg": [178, 73, 25]}
+            ],
+            "st": {
+                "wf": "sawtooth",
+                "nt": "51.91308719749314",
+                "atk": "10",
+                "rls": "500",
+                "ctf": "2000",
+                "rsn": "5",
+                "vol": "100"
+            }
+        };
+
+        // Assuming `loadMIDIRecording` and `playBackMIDI` are functions defined in `audionalSynthEngine.js`
+        document.addEventListener("DOMContentLoaded", function() {
+            // Reference to the play button
+            const playButton = document.getElementById("playButton");
+
+            // Play button event listener
+            playButton.addEventListener("click", function() {
+                // Ensure the AudioContext is resumed (necessary for browsers that suspend audio contexts to require user interaction)
+                if (context.state === 'suspended') {
+                    context.resume();
+                }
+
+                // Convert settings to a format expected by `loadMIDIRecording`
+                const fileContent = JSON.stringify(settings);
+                loadMIDIRecording(fileContent); // Load and apply settings
+
+                playBackMIDI(); // Start playback
+            });
+        });
+
+    </script>
+</body>
+</html>
